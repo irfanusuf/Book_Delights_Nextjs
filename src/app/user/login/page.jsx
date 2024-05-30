@@ -16,13 +16,14 @@ import { toast, ToastContainer } from "react-toastify";
 import { Button } from "@mui/material";
 
 export default function SignIn() {
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (e) => {
     try {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
+      e.preventDefault();
 
-      const email = data.get("email");
-      const password = data.get("password");
+      const input = new FormData(e.currentTarget);
+
+      const email = input.get("email");
+      const password = input.get("password");
 
       const res = await fetch("/api/user/login", {
         method: "POST",
@@ -37,14 +38,18 @@ export default function SignIn() {
         }),
       });
 
-      const fetchRes = await res.json();
-  
-      console.log(fetchRes.user)
+      const data = await res.json();
 
-      if (fetchRes.message === "Logged in succesfully") {
+
+  
+       await  localStorage.setItem("token" ,data.token)
+
+
+
+      if (data.message === "Logged in succesfully") {
         toast.success("Logged in succesfully");
       } else {
-        toast.error(fetchRes.message);
+        toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
@@ -54,8 +59,7 @@ export default function SignIn() {
 
   return (
     <>
-
-    <ToastContainer/>
+      <ToastContainer />
       <Container component="main" maxWidth="xs">
         <CssBaseline />
 

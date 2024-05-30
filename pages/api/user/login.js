@@ -11,7 +11,7 @@ const handler = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (email === "" && password === "") {
+    if (email === "" || password === "") {
       return messagehandler(res, 400, "All Credentials Required!");
     }
 

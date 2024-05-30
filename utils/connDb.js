@@ -1,17 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-
-const url = "mongodb://localhost:27017/nexterra"
+const url = "mongodb://localhost:27017/nexterra";
 
 const connectDb = async () => {
-
-
   if (mongoose.connections[0].readyState) {
-
     return;
   }
-
-
 
   try {
     await mongoose.connect(url);
@@ -22,6 +16,3 @@ const connectDb = async () => {
 };
 
 export default connectDb;
-
-
-
