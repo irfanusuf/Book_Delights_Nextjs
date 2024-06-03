@@ -11,7 +11,8 @@ description : String,
 price : Number,
 imageUrl : String
 
-
 });
+
+
 
 export default Book
