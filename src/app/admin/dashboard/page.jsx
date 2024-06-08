@@ -9,7 +9,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import DataTable from "../components/clientComponents/DataTable";
 
 const style = {
   position: "absolute",
@@ -25,6 +27,10 @@ const style = {
 
 const AdminDashboard = () => {
   const [open, setOpen] = React.useState(false);
+  const [loading , setLoading ] = React.useState(false);
+
+
+
   const [title, setTitle] = React.useState("");
   const [author, setAuthor] = React.useState("");
   const [description, setDesciption] = React.useState("");
@@ -34,124 +40,164 @@ const AdminDashboard = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const handleImage = () => {};
+  const handleImage = (e) => {
+    const file = e.target.files?.[0]; // incoming selected file ....first one
+    const reader = new FileReader(); // creating an instance of file reader
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        setImage(reader.result);
+      }
+    };
+  };
 
-  async function handleSubmit() {
-    const res = await fetch("/api/add", {
-      method: "POST",
+  async function handleSubmit(e) {
+    try {
+      setLoading(true)
+      e.preventDefault();
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+      const formData = new FormData();
 
-      body: JSON.stringify({
-        title,
-        author,
-        description,
-        price,
-        image,
-      }),
-    });
+      formData.append("title", title);
+      formData.append("author", author);
+      formData.append("description", description);
+      formData.append("price", price);
+      formData.append("image", image);
 
-    const data = res.json();
+      const res = await fetch("/api/book/add", {
+        method: "POST",
+        body: formData,
+      });
 
-    if (data.message === "Book saved Succesfully") {
-      toast.success("Book saved Succesfully");
-    } else {
-      toast.error(data.message);
+      const data = await res.json();
+
+      if (data.message === "Book saved Succesfully") {
+        toast.success("Book saved Succesfully");
+        setTitle("")
+        setAuthor("")
+        setDesciption("")
+        setPrice("")
+        setImage(null)
+
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Some Error , Kindly Try again");
+    }
+    finally{
+      setLoading(false)
     }
   }
 
   return (
-    <Container sx={{ marginTop: "50px" }}>
-      <Typography variant="h3">Admin Dashboard</Typography>
+    <>
+      <ToastContainer />
+      <Container sx={{ marginTop: "50px" }}>
+        <Typography variant="h3">Admin Dashboard</Typography>
 
-      <Button variant="contained" color="primary" onClick={handleOpen}>
-        Add Book
-      </Button>
-
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style} onSubmit={handleSubmit}>
-        <Typography variant="h5" textAlign={"center"}>
+        
+        <Button variant="contained" color="primary" onClick={handleOpen}>
           Add Book
-        </Typography>
+        </Button>
 
 
-          <TextField
-            margin="normal"
-            id="filled-basic"
-            label="Book Title"
-            variant="filled"
-            fullWidth
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-            }}
-          />
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography variant="h5" textAlign={"center"}>
+              Add Book
+            </Typography>
+            |
+            <form onSubmit={handleSubmit}>
+              <TextField
+                margin="normal"
+                id="filled-basic"
+                label="Book Title"
+                variant="filled"
+                fullWidth
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                }}
+              />
 
-          <TextField
-            margin="normal"
-            id="filled-basic"
-            label="Book Description"
-            variant="filled"
-            fullWidth
-            value={description}
-            onChange={(e) => {
-              setDesciption(e.target.value);
-            }}
-          />
+              <TextField
+                margin="normal"
+                id="filled-basic"
+                label="Book Description"
+                variant="filled"
+                fullWidth
+                value={description}
+                onChange={(e) => {
+                  setDesciption(e.target.value);
+                }}
+              />
 
-          <TextField
-            margin="normal"
-            id="filled-basic"
-            label="Book Author"
-            variant="filled"
-            fullWidth
-            value={author}
-            onChange={(e) => {
-              setAuthor(e.target.value);
-            }}
-          />
-          <TextField
-            margin="normal"
-            id="filled-basic"
-            label="Book Price"
-            variant="filled"
-            fullWidth
-            type="number"
-            value={price}
-            onChange={(e) => {
-              setPrice(e.target.value);
-            }}
-          />
-          <TextField
-            margin="normal"
-            id="filled-basic"
-            variant="filled"
-            fullWidth
-            type="file"
-            onChange={handleImage}
-          />
-
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            fullWidth
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Add Book
-          </Button>
-        </Box>
-      </Modal>
+              <TextField
+                margin="normal"
+                id="filled-basic"
+                label="Book Author"
+                variant="filled"
+                fullWidth
+                value={author}
+                onChange={(e) => {
+                  setAuthor(e.target.value);
+                }}
+              />
+              <TextField
+                margin="normal"
+                id="filled-basic"
+                label="Book Price"
+                variant="filled"
+                fullWidth
+                type="number"
+                value={price}
+                onChange={(e) => {
+                  setPrice(e.target.value);
+                }}
+              />
+              <TextField
+                margin="normal"
+                id="filled-basic"
+                variant="filled"
+                fullWidth
+                type="file"
+                name="file"
+                onChange={handleImage}
+              />
+              <img src={image} alt="no" width={100} />
 
 
-    </Container>
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                fullWidth
+                sx={{ mt: 3, mb: 2 }}
+                disabled={loading}
+              >
+                Add Book
+              </Button>
+
+            </form>
+          </Box>
+        </Modal>
+        
+
+
+        <DataTable />
+
+
+
+
+      </Container>
+    </>
   );
 };
 

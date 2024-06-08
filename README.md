@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+// First Observation
 
-## Getting Started
+// after deep testing i found that multer is not comptiable with fetch
+// if we send formdata array through fetch we will not be able to extract image file using
+// multer middleware and there will be no file in uploads which will be giving error path not
+// defined ....
+// now if we send formdata through fetch we will be able to extarct all the feilds including
+// image but we have to configure api : { bodyParser : false} and then we dont have to use
+// multer at all
+// if we send data using json.stringfy then configure api : { bodyParser : true} and all the
+// feilds will be available in req.body with 1MB size limit
 
-First, run the development server:
+// Second Observation
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+// using nextConnect.createRoute method is not working in next js 14
+// we have to import createRoute directly from next-connect  libarary
+// and call it in our handler and then we can use any middleware usinng apiRouter.use()
+// but still i find that multer middleware is not working when sending formdata using fetch/axios
+// from frontend
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+// Third Observation
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+// when i sent form-data from postman ...multer worked like a charm
+// but we have to configure api : { bodyParser : false} so that we can use multer
+// and we are able to get every feild in req.body and image in req.file.path
